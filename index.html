@@ -12,26 +12,22 @@ body {
   background: #f4f6f8;
 }
 
-/* ✅ conteneur mobile full width */
 .container {
   width: 70%;
 }
 
-/* titre */
 h2 {
   text-align: center;
   font-size: 20px;
   margin-bottom: 5px;
 }
 
-/* info */
 .info {
   text-align: center;
   color: red;
   font-size: 12px;
 }
 
-/* ✅ ligne propre */
 .row {
   display: flex;
   align-items: flex-start;
@@ -39,35 +35,17 @@ h2 {
   margin-bottom: 10px;
 }
 
-/* ✅ label */
 .label {
   width: 15%;
   font-size: 14px;
   font-weight: bold;
 }
 
-/* ✅ champ */
 .field {
   width: 85%;
   position: relative;
 }
 
-/* ✅ champs plus petits */
-.field.small {
-  max-width: 150px;
-}
-
-input.small {
-  max-width: 150px;
-}
-
-/* ✅ champ moyen */
-input.medium {
-  max-width: 250px;
-}
-
-
-/* ✅ inputs propres */
 input, textarea, select {
   width: 100%;
   padding: 12px;
@@ -77,13 +55,11 @@ input, textarea, select {
   box-sizing: border-box;
 }
 
-/* textarea */
 textarea {
   min-height: 80px;
   resize: none;
 }
 
-/* ✅ bouton principal */
 .btn-main {
   width: 100%;
   margin-top: 15px;
@@ -93,10 +69,8 @@ textarea {
   color: white;
   border-radius: 10px;
   border: none;
-  font-weight: bold;
 }
 
-/* ✅ boutons matériel horizontaux */
 .btn-group-horizontal {
   display: flex;
   gap: 6px;
@@ -105,19 +79,13 @@ textarea {
 .btn-group-horizontal button {
   flex: 1;
   padding: 12px;
-  font-size: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f0f0f0;
 }
 
 .btn-group-horizontal button.active {
   background-color: #0078D7;
   color: white;
-  border-color: #0078D7;
 }
 
-/* ✅ dropdown propre (fix du bug visuel) */
 .dropdown {
   position: absolute;
   top: 100%;
@@ -125,22 +93,18 @@ textarea {
   right: 0;
   background: white;
   border: 1px solid #ccc;
-  border-radius: 6px;
   max-height: 160px;
   overflow-y: auto;
   display: none;
-  z-index: 1000;
 }
 
 .dropdown div {
   padding: 10px;
-  font-size: 14px;
 }
 
 .dropdown div:hover {
   background: #e6f2ff;
 }
-
 </style>
 </head>
 
@@ -148,24 +112,20 @@ textarea {
 
 <div class="container">
 
-<h2>🔧 Fiches de Maintenance (Page TEST)</h2>
+<h2>🔧 Fiches de Maintenance (TEST)</h2>
 <p class="info">* obligatoires</p>
 
 <div class="row">
   <div class="label">Equipement *</div>
   <div class="field">
-    
-  <input type="text" style="display:none">
-  
-    <input 
-      type="text"
-      id="equipement"
-      name="random_12345_equipement"
+
+    <input type="text" style="display:none">
+
+    <input type="text" id="equipement"
       autocomplete="off"
       autocorrect="off"
       autocapitalize="off"
-      spellcheck="false"
-    >
+      spellcheck="false">
 
     <div id="equipementList" class="dropdown"></div>
   </div>
@@ -181,34 +141,33 @@ textarea {
 <div class="row">
   <div class="label">Date *</div>
   <div class="field">
-    <input type="date" id="date" class="small">
+    <input type="date" id="date">
   </div>
 </div>
 
 <div class="row">
   <div class="label">Site *</div>
-    <div class="field small">
+  <div class="field">
+
     <input type="text" style="display:none">
-      <input 
-        type="text"
-        id="site"
-        name="random_12345_site"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      >
+
+    <input type="text" id="site"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false">
+
     <div id="siteList" class="dropdown"></div>
   </div>
 </div>
 
 <div class="row">
-  <div class="label">Matériel Utilisable?*</div>
+  <div class="label">Matériel *</div>
   <div class="field">
 
     <div class="btn-group-horizontal">
       <button type="button" onclick="selectMateriel('Oui', this)">Oui</button>
-      <button type="button" onclick="selectMateriel('Oui en mode dégradé', this)">Oui en mode dégradé</button>
+      <button type="button" onclick="selectMateriel('Oui dégradé', this)">Dégradé</button>
       <button type="button" onclick="selectMateriel('Non', this)">Non</button>
     </div>
 
@@ -217,23 +176,9 @@ textarea {
 </div>
 
 <div class="row">
-  <div class="label">Action immédiate</div>
-  <div class="field">
-    <textarea id="action1"></textarea>
-  </div>
-</div>
-
-<div class="row">
-  <div class="label">Action à effectuer</div>
-  <div class="field">
-    <textarea id="action2"></textarea>
-  </div>
-</div>
-
-<div class="row">
   <div class="label">Rédacteur *</div>
   <div class="field">
-    <input type="text" id="redacteur" class="medium">
+    <input type="text" id="redacteur">
   </div>
 </div>
 
@@ -243,74 +188,65 @@ textarea {
 
 <script>
 
-// Ignorer accents
+// ✅ NORMALIZE
 function normalize(str) {
-return str
-  .toLowerCase()
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "");
+  return str.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
-// Fuzzy search
-
+// ✅ FUZZY STABLE
 function fuzzyScore(search, text) {
 
   if (!search) return 1;
 
-  // priorité exacte
   if (text.startsWith(search)) return 100;
 
-  // priorité mot
   const words = text.split(" ");
   if (words.some(w => w.startsWith(search))) return 80;
 
-  // contient
   if (text.includes(search)) return 50;
 
-  // fuzzy simple (tolérance 1 faute)
-  let mismatches = 0;
-  let i = 0, j = 0;
+  let i = 0, j = 0, errors = 0;
 
   while (i < search.length && j < text.length) {
-    if (search[i] === text[j]) {
-      i++;
-    } else {
-      mismatches++;
-    }
+    if (search[i] === text[j]) i++;
+    else errors++;
+
+    if (errors > 1) return 0;
+
     j++;
-    if (mismatches > 1) return 0; // ❌ trop éloigné
   }
 
-  return (i === search.length) ? 20 : 0;
+  return i === search.length ? 20 : 0;
 }
+
+// ✅ HIGHLIGHT
 function highlight(text, search) {
 
   if (!search) return text;
 
-  const nText = normalize(text);
-  const nSearch = normalize(search);
+  const i = normalize(text).indexOf(normalize(search));
 
-  const index = nText.indexOf(nSearch);
+  if (i === -1) return text;
 
-  if (index === -1) return text;
-
-  return text.substring(0, index)
-    + "<b>" + text.substring(index, index + search.length) + "</b>"
-    + text.substring(index + search.length);
+  return text.substring(0, i)
+    + "<b>" + text.substring(i, i + search.length) + "</b>"
+    + text.substring(i + search.length);
 }
 
-// ✅ globals
+// ✅ GLOBALS
 let equipements = [];
 let sites = [];
 
-// ✅ sélection matériel
-function selectMateriel(value, element) {
-  document.getElementById("materiel").value = value;
+// ✅ MATERIEL
+function selectMateriel(val, el) {
+  document.getElementById("materiel").value = val;
 
   document.querySelectorAll(".btn-group-horizontal button")
-    .forEach(btn => btn.classList.remove("active"));
+    .forEach(b => b.classList.remove("active"));
 
-  element.classList.add("active");
+  el.classList.add("active");
 }
 
 // ✅ AUTOCOMPLETE
@@ -319,75 +255,28 @@ function createAutocomplete(inputId, listId, dataList) {
   const input = document.getElementById(inputId);
   const list = document.getElementById(listId);
 
-  let currentIndex = -1;
-
   input.addEventListener("focus", () => showList(""));
-  input.addEventListener("input", () => {
-    currentIndex = -1;
-    showList(input.value);
-  });
-
-  input.addEventListener("keydown", function(e) {
-
-    const items = list.querySelectorAll("div");
-
-    if (e.key === "ArrowDown") {
-      currentIndex = (currentIndex + 1) % items.length;
-    }
-
-    if (e.key === "ArrowUp") {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
-    }
-
-    if (e.key === "Enter" && currentIndex >= 0) {
-      items[currentIndex].click();
-    }
-
-    items.forEach((el, i) => {
-      el.style.background = i === currentIndex ? "#d0e7ff" : "";
-    });
-
-  });
+  input.addEventListener("input", () => showList(input.value));
 
   function showList(filter) {
 
     const val = normalize(filter);
 
-    let results = dataList.map(item => {
-      const normalized = normalize(item);
-      return {
-        original: item,
-        normalized: normalized,
-        score: fuzzyScore(val, normalized)
-      };
-    });
+    let results = dataList.map(item => ({
+      original: item,
+      normalized: normalize(item),
+      score: fuzzyScore(val, normalize(item))
+    }));
 
-    // filtrer
-    results = results.filter(r => r.score > 20);
-
-    // trier
+    results = results.filter(r => r.score > 0);
     results.sort((a, b) => b.score - a.score);
-    // ✅ sécurité : si score trop faible → rien afficher
-    if (val.length > 2 && results.every(r => r.score < 30)) {
-      list.innerHTML = "<div>Aucun résultat pertinent</div>";
-      list.style.display = "block";
-      return;
-    }
-
-    // limiter
     results = results.slice(0, 50);
-
-    // auto sélection si 1 seul résultat
-    if (results.length === 1 && val.length > 2) {
-  selectItem(results[0].original, inputId, listId);
-  return;
-    }
 
     if (results.length === 0) {
       list.innerHTML = "<div>Aucun résultat</div>";
     } else {
       list.innerHTML = results.map(item => `
-        <div onclick="selectItem('${item.original.replace(/'/g, "\\'")}', '${inputId}', '${listId}')">
+        <div onclick="selectItem('${item.original}', '${inputId}', '${listId}')">
           ${highlight(item.original, filter)}
         </div>
       `).join("");
@@ -395,74 +284,37 @@ function createAutocomplete(inputId, listId, dataList) {
 
     list.style.display = "block";
   }
-
 }
 
-// ✅ sélection item
-function selectItem(value, inputId, listId) {
-  document.getElementById(inputId).value = value;
+// ✅ SELECT
+function selectItem(val, inputId, listId) {
+  document.getElementById(inputId).value = val;
   document.getElementById(listId).style.display = "none";
 }
 
-// ✅ charger données
+// ✅ LOAD DATA
 Promise.all([
-  fetch("equipements.json").then(res => res.json()),
-  fetch("sites.json").then(res => res.json())
-]).then(([equipData, siteData]) => {
-
-  equipements = equipData;
-  sites = siteData;
-
+  fetch("equipements.json").then(r => r.json()),
+  fetch("sites.json").then(r => r.json())
+]).then(([e, s]) => {
+  equipements = e;
+  sites = s;
   createAutocomplete("equipement", "equipementList", equipements);
   createAutocomplete("site", "siteList", sites);
 });
 
-// ✅ fermer dropdown
-document.addEventListener("click", function(e) {
+// ✅ CLOSE DROPDOWN
+document.addEventListener("click", e => {
   if (!e.target.closest(".field")) {
     document.querySelectorAll(".dropdown")
       .forEach(d => d.style.display = "none");
   }
 });
 
-// ✅ auto date
-window.onload = function() {
+// ✅ DATE
+window.onload = () => {
   document.getElementById("date").valueAsDate = new Date();
 };
-
-// ✅ ENVOI
-function envoyer() {
-
-  const equipement = document.getElementById("equipement").value;
-  const description = document.getElementById("description").value;
-  const date = document.getElementById("date").value;
-  const site = document.getElementById("site").value;
-  const materiel = document.getElementById("materiel").value;
-  const action1 = document.getElementById("action1").value;
-  const action2 = document.getElementById("action2").value;
-  const redacteur = document.getElementById("redacteur").value;
-
-  if (!equipement || !description || !date || !site || !materiel || !redacteur) {
-    alert("⚠️ Champs obligatoires manquants");
-    return;
-  }
-
-  if (!confirm("✅ Confirmer l'envoi ?")) return;
-
-  let baseUrl = "https://forms.office.com/Pages/ResponsePage.aspx?id=esFuUS-5i0OFlOEbb2vseRjkMUtrzTFJgkDRO6ovM4RUQzRENktIUTY4V0YwUFVVQ01QSlk5WkVPWC4u";
-
-  let url = baseUrl
-    + "&r6224cbff49d94b79a69654caa3241ddf=" + encodeURIComponent(equipement)
-    + "&r936dbfbe7b3a4f0ba57f4406807e37a5=" + encodeURIComponent(description)
-    + "&rb1e2f7df928f43beacbe59f537d8b09b=" + encodeURIComponent(date)
-    + "&r3fedaea8875d40899833d017ba9ff9fa=" + encodeURIComponent(site)
-    + "&r9ac54388070a43748ea2b5514ff712d8=" + encodeURIComponent(materiel)
-    + "&ra23df662a36640e2912b5bed96b080ee=" + encodeURIComponent(action1)
-    + "&rdd29c9cd9da649e8a41549e52d9f6374=" + encodeURIComponent(action2)
-    + "&r38c32352ebca4f7e88f37c0de9bf0bf0=" + encodeURIComponent(redacteur);
-
-  window.location.href = url;
-}
 
 </script>
 
