@@ -255,7 +255,7 @@ return str
 
 function fuzzyMatch(search, text) {function fuzzyMatch >= search.length - 1;
 }
-
+  {
   if (!search) return true;
 
   let i = 0;
@@ -270,6 +270,7 @@ function fuzzyMatch(search, text) {function fuzzyMatch >= search.length - 1;
     }
 
     if (errors > 2) return false;
+  }
 }
 
 
