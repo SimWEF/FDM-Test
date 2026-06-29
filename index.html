@@ -258,16 +258,39 @@ function fuzzyMatch(search, text) {
   if (!search) return true;
 
   let i = 0;
+  let errors = 0;
 
-  for (let j = 0; j < text.length; j++) {
-    if (text[j] === search[i]) {
+  const s = search;
+  const t = text;
+
+  let j = 0;
+
+  while (i < s.length && j < t.length) {
+
+    if (s[i] === t[j]) {
       i++;
+      j++;
+    } else {
+      errors++;
+
+      // tolérance insertion / suppression
+      if (s[i] === t[j + 1]) {
+        j++;
+      }
+      else if (s[i + 1] === t[j]) {
+        i++;
+      }
+      else {
+        j++;
+      }
     }
+
+    if (errors > 2) return false;
   }
 
-  // ✅ tolère 1 caractère faux ou inversé
-  return i >= search.length - 1;
+  return true;
 }
+
 
 // ✅ globals
 let equipements = [];
