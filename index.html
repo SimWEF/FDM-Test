@@ -253,41 +253,35 @@ return str
 
 // Fuzzy search
 
-function fuzzyScore(a, b) {
-if (a.length === 0) return 0;
-if (b.length === 0) return 0;
+function fuzzyScore(search, text) {
 
-let score = 0;
+  if (!search) return 1;
 
-if (b.startsWith(a)) score += 100;
-else if (b.includes(a)) score += 50;
+  // priorité exacte
+  if (text.startsWith(search)) return 100;
 
-// bonus mot
-const words = b.split(" ");
-if (words.some(w => w.startsWith(a))) score += 80;
+  // priorité mot
+  const words = text.split(" ");
+  if (words.some(w => w.startsWith(search))) return 80;
 
-// tolérance fautes simples
-let distance = Math.abs(a.length - b.length);
-if (distance <= 2) score += 10;
+  // contient
+  if (text.includes(search)) return 50;
 
-return score;
-}
+  // fuzzy simple (tolérance 1 faute)
+  let mismatches = 0;
+  let i = 0, j = 0;
 
-// Highlight text
+  while (i < search.length && j < text.length) {
+    if (search[i] === text[j]) {
+      i++;
+    } else {
+      mismatches++;
+    }
+    j++;
+    if (mismatches > 1) return 0; // ❌ trop éloigné
+  }
 
-function highlight(text, search) {
-
-if (!search) return text;
-
-const nText = normalize(text);
-const nSearch = normalize(search);
-
-const index = nText.indexOf(nSearch);
-if (index === -1) return text;
-
-return text.substring(0, index)
-  + "<b>" + text.substring(index, index + search.length) + "</b>"
-  + text.substring(index + search.length);
+  return (i === search.length) ? 20 : 0;
 }
 
 
@@ -355,18 +349,24 @@ function createAutocomplete(inputId, listId, dataList) {
     });
 
     // filtrer
-    results = results.filter(r => r.score > 0);
+    results = results.filter(r => r.score > 20);
 
     // trier
     results.sort((a, b) => b.score - a.score);
+    // ✅ sécurité : si score trop faible → rien afficher
+    if (val.length > 2 && results.every(r => r.score < 30)) {
+      list.innerHTML = "<div>Aucun résultat pertinent</div>";
+      list.style.display = "block";
+      return;
+    }
 
     // limiter
     results = results.slice(0, 50);
 
     // auto sélection si 1 seul résultat
     if (results.length === 1 && val.length > 2) {
-      selectItem(results[0].original, inputId, listId);
-      return;
+  selectItem(results[0].original, inputId, listId);
+  return;
     }
 
     if (results.length === 0) {
