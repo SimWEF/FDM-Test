@@ -196,30 +196,21 @@ function normalize(str) {
 }
 
 // ✅ FUZZY STABLE
-function fuzzyScore(search, text) {
+function fuzzyMatch(search, text) {
 
-  if (!search) return 1;
+  if (!search) return true;
 
-  if (text.startsWith(search)) return 100;
+  let i = 0;
 
-  const words = text.split(" ");
-  if (words.some(w => w.startsWith(search))) return 80;
-
-  if (text.includes(search)) return 50;
-
-  let i = 0, j = 0, errors = 0;
-
-  while (i < search.length && j < text.length) {
-    if (search[i] === text[j]) i++;
-    else errors++;
-
-    if (errors > 1) return 0;
-
-    j++;
+  for (let j = 0; j < text.length; j++) {
+    if (text[j] === search[i]) {
+      i++;
+    }
   }
 
-  return i === search.length ? 20 : 0;
+  return i >= search.length - 1; // tolère 1 erreur
 }
+
 
 // ✅ HIGHLIGHT
 function highlight(text, search) {
@@ -258,30 +249,46 @@ function createAutocomplete(inputId, listId, dataList) {
   input.addEventListener("focus", () => showList(""));
   input.addEventListener("input", () => showList(input.value));
 
-  function showList(filter) {
-
+   function showList(filter) {
+  
     const val = normalize(filter);
-
+  
     let results = dataList.map(item => ({
       original: item,
-      normalized: normalize(item),
-      score: fuzzyScore(val, normalize(item))
+      normalized: normalize(item)
     }));
-
-    results = results.filter(r => r.score > 0);
-    results.sort((a, b) => b.score - a.score);
+  
+    // ✅ filtrage simple + fiable
+    if (val.length > 0) {
+      results = results.filter(item =>
+        item.normalized.includes(val) || fuzzyMatch(val, item.normalized)
+      );
+    }
+  
+    // ✅ tri logique
+    results.sort((a, b) => {
+  
+      const aStarts = a.normalized.startsWith(val);
+      const bStarts = b.normalized.startsWith(val);
+  
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+  
+      return a.normalized.localeCompare(b.normalized);
+    });
+  
     results = results.slice(0, 50);
-
+  
     if (results.length === 0) {
       list.innerHTML = "<div>Aucun résultat</div>";
     } else {
       list.innerHTML = results.map(item => `
-        <div onclick="selectItem('${item.original}', '${inputId}', '${listId}')">
+        <div onclick="selectItem('${item.original.replace(/'/g, "\\'")}', '${inputId}', '${listId}')">
           ${highlight(item.original, filter)}
         </div>
       `).join("");
     }
-
+  
     list.style.display = "block";
   }
 }
