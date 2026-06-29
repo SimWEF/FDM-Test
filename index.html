@@ -257,40 +257,36 @@ function fuzzyMatch(search, text) {
 
   if (!search) return true;
 
+  const searchWords = search.trim().split(/\s+/);
+  const textWords = text.split(/\s+/);
+
+  return searchWords.every(sWord => {
+
+    return textWords.some(tWord => {
+
+      return fuzzyWordMatch(sWord, tWord);
+
+    });
+
+  });
+}
+
+function fuzzyWordMatch(a, b) {
+
   let i = 0;
   let errors = 0;
 
-  const s = search;
-  const t = text;
+  while (i < a.length && i < b.length) {
 
-  let j = 0;
-
-  while (i < s.length && j < t.length) {
-
-    if (s[i] === t[j]) {
-      i++;
-      j++;
-    } else {
-      errors++;
-
-      // tolérance insertion / suppression
-      if (s[i] === t[j + 1]) {
-        j++;
-      }
-      else if (s[i + 1] === t[j]) {
-        i++;
-      }
-      else {
-        j++;
-      }
-    }
+    if (a[i] !== b[i]) errors++;
 
     if (errors > 2) return false;
+
+    i++;
   }
 
   return true;
 }
-
 
 // ✅ globals
 let equipements = [];
