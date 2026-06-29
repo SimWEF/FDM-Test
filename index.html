@@ -273,6 +273,24 @@ if (distance <= 2) score += 10;
 return score;
 }
 
+// Highlight text
+
+function highlight(text, search) {
+
+if (!search) return text;
+
+const nText = normalize(text);
+const nSearch = normalize(search);
+
+const index = nText.indexOf(nSearch);
+if (index === -1) return text;
+
+return text.substring(0, index)
+  + "<b>" + text.substring(index, index + search.length) + "</b>"
+  + text.substring(index + search.length);
+}
+
+
 // ✅ globals
 let equipements = [];
 let sites = [];
@@ -293,52 +311,77 @@ function createAutocomplete(inputId, listId, dataList) {
   const input = document.getElementById(inputId);
   const list = document.getElementById(listId);
 
-  input.addEventListener("focus", () => showList(""));
-  input.addEventListener("input", () => showList(input.value));
+  let currentIndex = -1;
 
-    function showList(filter) {
-  
-    const val = normalize(filter);
-  
-    // transformer liste
-    let results = dataList.map(item => ({
-      original: item,
-      normalized: normalize(item)
-    }));
-  
-    // 🔥 tri intelligent
-    results.sort((a, b) => {
-  
-      const aStarts = a.normalized.startsWith(val);
-      const bStarts = b.normalized.startsWith(val);
-  
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-  
-      const aIncludes = a.normalized.includes(val);
-      const bIncludes = b.normalized.includes(val);
-  
-      if (aIncludes && !bIncludes) return -1;
-      if (!aIncludes && bIncludes) return 1;
-  
-      return a.original.localeCompare(b.original);
+  input.addEventListener("focus", () => showList(""));
+  input.addEventListener("input", () => {
+    currentIndex = -1;
+    showList(input.value);
+  });
+
+  input.addEventListener("keydown", function(e) {
+
+    const items = list.querySelectorAll("div");
+
+    if (e.key === "ArrowDown") {
+      currentIndex = (currentIndex + 1) % items.length;
+    }
+
+    if (e.key === "ArrowUp") {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+    }
+
+    if (e.key === "Enter" && currentIndex >= 0) {
+      items[currentIndex].click();
+    }
+
+    items.forEach((el, i) => {
+      el.style.background = i === currentIndex ? "#d0e7ff" : "";
     });
-  
-    // limiter nombre
-    results = results.slice(0, 200);
-  
+
+  });
+
+  function showList(filter) {
+
+    const val = normalize(filter);
+
+    let results = dataList.map(item => {
+      const normalized = normalize(item);
+      return {
+        original: item,
+        normalized: normalized,
+        score: fuzzyScore(val, normalized)
+      };
+    });
+
+    // filtrer
+    results = results.filter(r => r.score > 0);
+
+    // trier
+    results.sort((a, b) => b.score - a.score);
+
+    // limiter
+    results = results.slice(0, 50);
+
+    // auto sélection si 1 seul résultat
+    if (results.length === 1 && val.length > 2) {
+      selectItem(results[0].original, inputId, listId);
+      return;
+    }
+
     if (results.length === 0) {
       list.innerHTML = "<div>Aucun résultat</div>";
     } else {
       list.innerHTML = results.map(item => `
         <div onclick="selectItem('${item.original.replace(/'/g, "\\'")}', '${inputId}', '${listId}')">
-          ${item.original}
+          ${highlight(item.original, filter)}
         </div>
       `).join("");
     }
-  
+
     list.style.display = "block";
   }
+
 }
 
 // ✅ sélection item
