@@ -253,23 +253,25 @@ return str
 
 //Fuzzy
 
-function fuzzyMatch(search, text) {
+function fuzzyMatch(search, text) {function fuzzyMatch >= search.length - 1;
+}
 
   if (!search) return true;
 
-  const searchWords = search.trim().split(/\s+/);
-  const textWords = text.split(/\s+/);
+  let i = 0;
+  let errors = 0;
 
-  return searchWords.every(sWord => {
+  for (let j = 0; j < text.length; j++) {
 
-    return textWords.some(tWord => {
+    if (search[i] === text[j]) {
+      i++;
+    } else {
+      errors++;
+    }
 
-      return fuzzyWordMatch(sWord, tWord);
-
-    });
-
-  });
+    if (errors > 2) return false;
 }
+
 
 function fuzzyWordMatch(a, b) {
 
@@ -311,35 +313,42 @@ function createAutocomplete(inputId, listId, dataList) {
   input.addEventListener("focus", () => showList(""));
   input.addEventListener("input", () => showList(input.value));
 
-    function showList(filter) {
+function showList(filter) {
 
-  const val = normalize(filter);
+  const val = normalize(filter).trim();
 
-  let results = dataList.map(item => ({
-    original: item,
-    normalized: normalize(item)
-  }));
+  let results = dataList.map(item => {
 
-  if (val.length > 0) {
+    const normalized = normalize(item);
 
-    results = results.filter(item => 
-      item.normalized.includes(val) || fuzzyMatch(val, item.normalized)
-    );
-  }
+    let score = 0;
 
-  // ✅ tri simple et efficace
-  results.sort((a, b) => {
+    if (!val) score = 1;
 
-    const aStarts = a.normalized.startsWith(val);
-    const bStarts = b.normalized.startsWith(val);
+    // ✅ priorité forte : commence par
+    else if (normalized.startsWith(val)) score = 100;
 
-    if (aStarts && !bStarts) return -1;
-    if (!aStarts && bStarts) return 1;
+    // ✅ contient direct
+    else if (normalized.includes(val)) score = 70;
 
-    return a.normalized.localeCompare(b.normalized);
+    // ✅ fuzzy léger (secours uniquement)
+    else if (fuzzyMatch(val, normalized)) score = 40;
+
+    return {
+      original: item,
+      score: score
+    };
+
   });
 
-  results = results.slice(0, 100);
+  // ✅ filtrer les vrais résultats uniquement
+  results = results.filter(r => r.score > 0);
+
+  // ✅ trier par score
+  results.sort((a, b) => b.score - a.score);
+
+  // limiter
+  results = results.slice(0, 50);
 
   if (results.length === 0) {
     list.innerHTML = "<div>Aucun résultat</div>";
