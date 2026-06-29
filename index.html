@@ -251,6 +251,28 @@ return str
   .replace(/[\u0300-\u036f]/g, "");
 }
 
+// Fuzzy search
+
+function fuzzyScore(a, b) {
+if (a.length === 0) return 0;
+if (b.length === 0) return 0;
+
+let score = 0;
+
+if (b.startsWith(a)) score += 100;
+else if (b.includes(a)) score += 50;
+
+// bonus mot
+const words = b.split(" ");
+if (words.some(w => w.startsWith(a))) score += 80;
+
+// tolérance fautes simples
+let distance = Math.abs(a.length - b.length);
+if (distance <= 2) score += 10;
+
+return score;
+}
+
 // ✅ globals
 let equipements = [];
 let sites = [];
