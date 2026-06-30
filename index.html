@@ -252,33 +252,117 @@ return str
 }
 
 //Fuzzy
+function editDistance(a, b) {
+  const dp = [];
 
-function fuzzyMatch(search, text) {
-
-  if (!search) return true;
-
-  const s = search;
-  const t = text;
-
-  let i = 0;
-  let j = 0;
-  let errors = 0;
-
-  while (i < s.length && j < t.length) {
-
-    if (s[i] === t[j]) {
-      i++;
-      j++;
-    } else {
-      errors++;
-      j++;
-    }
-
-    if (errors > 2) return false;
+  for (let i = 0; i <= a.length; i++) {
+    dp[i] = [];
+    dp[i][0] = i;
   }
 
-  // ✅ important : accepter même si fin différente
-  return i >= s.length - 1;
+  for (let j = 0; j <= b.length; j++) {
+    dp[0][j] = j;
+  }
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+
+      // Tolérance inversion de deux lettres
+      if (
+        i > 1 &&
+        j > 1 &&
+        a[i - 1] === b[j - 2] &&
+        a[i - 2] === b[j - 1]
+      ) {
+        dp[i][j] = Math.min(dp[i][j], dp[i - 2][j - 2] + 1);
+      }
+    }
+  }
+
+  return dp[a.length][b.length];
+}
+
+function wordScore(searchWord, targetWord) {
+  if (!searchWord) return 1;
+
+  if (targetWord === searchWord) return 120;
+  if (targetWord.startsWith(searchWord)) return 100;
+  if (targetWord.includes(searchWord)) return 80;
+
+  // On compare aussi avec le début du mot cible
+  const targetPrefix = targetWord.substring(0, searchWord.length);
+
+  const distFull = editDistance(searchWord, targetWord);
+  const distPrefix = editDistance(searchWord, targetPrefix);
+
+  const dist = Math.min(distFull, distPrefix);
+
+  let threshold = 0;
+
+  if (searchWord.length <= 3) {
+    threshold = 0;
+  } else if (searchWord.length <= 5) {
+    threshold = 1;
+  } else if (searchWord.length <= 9) {
+    threshold = 2;
+  } else {
+    threshold = 3;
+  }
+
+  if (dist <= threshold) {
+    return 60 - dist * 10;
+  }
+
+  return 0;
+}
+
+function itemScore(search, item) {
+  const query = normalize(search);
+  const text = normalize(item);
+
+  if (!query) return 1;
+
+  const queryWords = query.split(/\s+/).filter(Boolean);
+  const textWords = text.split(/\s+/).filter(Boolean);
+
+  let totalScore = 0;
+
+  for (const qWord of queryWords) {
+    let bestWordScore = 0;
+
+    for (const tWord of textWords) {
+      const score = wordScore(qWord, tWord);
+      if (score > bestWordScore) {
+        bestWordScore = score;
+      }
+    }
+
+    // Si un des mots tapés ne matche rien, on rejette l'élément
+    if (bestWordScore === 0) {
+      return 0;
+    }
+
+    totalScore += bestWordScore;
+  }
+
+  // Bonus si la chaîne complète commence pareil
+  if (text.startsWith(query)) {
+    totalScore += 50;
+  }
+
+  // Bonus si la chaîne complète contient la recherche
+  if (text.includes(query)) {
+    totalScore += 30;
+  }
+
+  return totalScore;
 }
 
 
@@ -307,41 +391,24 @@ function createAutocomplete(inputId, listId, dataList) {
   input.addEventListener("input", () => showList(input.value));
 
 function showList(filter) {
+  const val = normalize(filter);
 
-  const val = normalize(filter).trim();
+  let results = dataList.map(item => ({
+    original: item,
+    score: itemScore(val, item)
+  }));
 
-  let results = dataList.map(item => {
-
-    const normalized = normalize(item);
-
-    let score = 0;
-
-    if (!val) score = 1;
-
-    // ✅ priorité forte : commence par
-    else if (normalized.startsWith(val)) score = 100;
-
-    // ✅ contient direct
-    else if (normalized.includes(val)) score = 70;
-
-    // ✅ fuzzy léger (secours uniquement)
-    else if (fuzzyMatch(val, normalized)) score = 40;
-
-    return {
-      original: item,
-      score: score
-    };
-
-  });
-
-  // ✅ filtrer les vrais résultats uniquement
   results = results.filter(r => r.score > 0);
 
-  // ✅ trier par score
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
 
-  // limiter
-  results = results.slice(0, 50);
+    return a.original.localeCompare(b.original);
+  });
+
+  results = results.slice(0, 100);
 
   if (results.length === 0) {
     list.innerHTML = "<div>Aucun résultat</div>";
