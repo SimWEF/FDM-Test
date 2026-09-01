@@ -144,37 +144,11 @@ textarea {
 </style>
 </head>
 
-
-<script>
-
-fetch("sousEnsemble.json")
-  .then(r => r.json())
-  .then(data => {
-
-      document.getElementById("testJson").innerHTML =
-          "<pre>" +
-          JSON.stringify(data, null, 2) +
-          "</pre>";
-
-  })
-  .catch(error => {
-
-      document.getElementById("testJson").innerHTML =
-          "ERREUR : " + error;
-
-  });
-
-</script>
-
 <body>
 
 <div class="container">
 
 <h2>🔧 Fiches de Maintenance</h2>
-  
-// test auto json
-<div id="testJson"></div>
-// fin test auto json
   
 <p class="info">* obligatoires</p>
 
