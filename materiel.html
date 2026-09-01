@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+<meta charset="UTF-8">
+<title>Etat du matériel</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f4f6f8;
+    padding:10px;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.titre{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.dispo{
+    font-size:24px;
+    color:#0078D7;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🔧 Etat du matériel</h1>
+
+<div id="contenu"></div>
+
+<script>
+
+fetch("sousEnsemble.json")
+.then(r => r.json())
+.then(data => {
+
+    let html = "";
+
+    data.forEach(item => {
+
+        html += `
+        <div class="card">
+
+            <div class="titre">
+                ${item.SousEnsemble}
+            </div>
+
+            <div class="dispo">
+                ${item.Utilisables}/${item.Total}
+            </div>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("contenu").innerHTML = html;
+
+});
+
+</script>
+
+</body>
+</html>
