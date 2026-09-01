@@ -144,11 +144,31 @@ textarea {
 </style>
 </head>
 
+<script>
+
+fetch("test.json")
+.then(r => r.json())
+.then(data => {
+
+    document.getElementById("testJson").innerHTML =
+        "Version : " + data.version +
+        "<br>Date : " + data.date +
+        "<br>Message : " + data.message;
+
+});
+
+</script>
+
 <body>
 
 <div class="container">
 
 <h2>🔧 Fiches de Maintenance</h2>
+  
+// test auto json
+<div id="testJson"></div>
+// fin test auto json
+  
 <p class="info">* obligatoires</p>
 
 <div class="row">
@@ -242,6 +262,7 @@ textarea {
 </div>
 
 <script>
+
 
 // Ignorer accents
 function normalize(str) {
