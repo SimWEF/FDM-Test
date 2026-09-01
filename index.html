@@ -144,20 +144,19 @@ textarea {
 </style>
 </head>
 
+
+//testJSON
 <script>
 
-fetch("test.json")
-.then(r => r.json())
-.then(data => {
+fetch("sousEnsembles.json")
+  .then(r => r.json())
+  .then(data => {
+     console.log(data);
+  });
 
-    document.getElementById("testJson").innerHTML =
-        "Version : " + data.version +
-        "<br>Date : " + data.date +
-        "<br>Message : " + data.message;
-
-});
 
 </script>
+//fin testJSON
 
 <body>
 
